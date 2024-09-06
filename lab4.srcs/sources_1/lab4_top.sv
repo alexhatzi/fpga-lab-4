@@ -60,7 +60,7 @@ module lab4_top
                 ,       .H_SYNC         (hsync)
                 ,       .V_SYNC         (vsync)
                 ,       .rgb_active     (rgb_active)
-                ,       .row_cnt        (row_cnt)
+                ,       .h_counter      (row_cnt)
                 ) ;
 
 

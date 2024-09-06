@@ -1,4 +1,3 @@
-`timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
 // Engineer: 
@@ -44,7 +43,8 @@ module display_driver
      , output logic       H_SYNC
      , output logic       V_SYNC
      , output logic    rgb_active
-     , output logic [9:0] row_cnt
+     , output logic [20:0] h_counter // big enough reg to hold the largest number
+
      );
 
 
@@ -57,7 +57,6 @@ module display_driver
     VSYNC_t VSYNC_STATE ;
 
 
-    logic [20:0] h_counter ; // big enough reg to hold the largest number
     logic [20:0] v_counter ; 
 
     initial v_counter = 0 ; 
@@ -160,11 +159,11 @@ module display_driver
                 else e_cnt <= e_cnt + 1'b1 ; 
             end
             else begin
-            d_cnt     <= d_cnt + 1'b1   ; 
+            d_cnt       <= d_cnt + 1'b1     ; 
             red   [3:0] <= r_color [3:0]    ; 
             green [3:0] <= g_color [3:0]    ; 
             blue  [3:0] <= b_color [3:0]    ; 
-            rgb_active  <= ~rgb_active      ;
+            rgb_active  <= 1'b1             ;
             end
           end 
           else begin
@@ -179,13 +178,6 @@ module display_driver
     end
   end
 
-
-always@(posedge H_SYNC) begin
-  if (VSYNC) begin
-        row_cnt <= row_cnt + 1'b1 ; 
-  end else
-        row_cnt <= 1'b0           ;
-end
 
 
 

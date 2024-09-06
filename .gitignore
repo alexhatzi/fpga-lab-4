@@ -1,0 +1,13 @@
+lab4.cache/
+lab4.gen/
+lab4.hw/
+lab4.runs/
+lab4.sim/
+min_area_pfile.tmp
+*.log
+*.jou
+*.str
+lab4.ip_user_files/
+.sv_cache
+*.xpr
+lab4.srcs/utils_1/
