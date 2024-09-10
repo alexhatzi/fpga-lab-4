@@ -43,7 +43,6 @@ module display_driver
      , output logic       H_SYNC
      , output logic       V_SYNC
      , output logic    rgb_active
-     , output logic [20:0] h_counter // big enough reg to hold the largest number
 
      );
 
@@ -58,6 +57,7 @@ module display_driver
 
 
     logic [20:0] v_counter ; 
+    logic [20:0] h_counter ;  // big enough reg to hold the largest number
 
     initial v_counter = 0 ; 
 

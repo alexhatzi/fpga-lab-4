@@ -19,7 +19,6 @@ module lab4_top
 
 
         logic rgb_active ; 
-        logic [9:0] row_cnt ; 
         logic dvld ; 
         logic [7:0] key ;
         logic [1:0] error_detect ; 
@@ -27,11 +26,12 @@ module lab4_top
         logic [3:0] bit_loc     ;
         logic [3:0] digit       ;
 
+        initial bit_loc = '0 ; 
+
         logic [3:0] r_color ; 
         logic [3:0] g_color ; 
         logic [3:0] b_color ; 
 
-        logic clka ; 
         logic [6:0] addra ; 
         logic [24:0] douta ; 
 
@@ -60,7 +60,6 @@ module lab4_top
                 ,       .H_SYNC         (hsync)
                 ,       .V_SYNC         (vsync)
                 ,       .rgb_active     (rgb_active)
-                ,       .h_counter      (row_cnt)
                 ) ;
 
 
@@ -92,20 +91,20 @@ module lab4_top
                 ,       .addra          (addra)
                 ,       .douta          (douta)
                 ,       .digit          (digit)
-                ,       .row_cnt        (row_cnt)
+                ,       .vsync          (vsync)
+                ,       .hsync          (hsync)
                 ,       .r_color        (r_color)
                 ,       .g_color        (g_color)
                 ,       .b_color        (b_color)
                 ) ; 
 
 
-                assign clka = clk ; 
 
 
         blk_mem_gen_0 u_bram
                 (       .addra           (addra)
                 ,       .douta           (douta)
-                ,       .clka            (clka)
+                ,       .clka            (clk)
                 ) ; 
 
 

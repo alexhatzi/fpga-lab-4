@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="top_sim_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="top_sim" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="13,936.055 ns"></ZoomStartTime>
+      <ZoomEndTime time="13,949.625 ns"></ZoomEndTime>
+      <Cursor1Time time="207.000 ns"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="138"></NameColumnWidth>
+      <ValueColumnWidth column_width="66"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="16" />
+   <wvobject type="logic" fp_name="/top_sim/uut/u_text_driver/clk">
+      <obj_property name="ElementShortName">clk</obj_property>
+      <obj_property name="ObjectShortName">clk</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/uut/u_text_driver/rgb_active">
+      <obj_property name="ElementShortName">rgb_active</obj_property>
+      <obj_property name="ObjectShortName">rgb_active</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/addra">
+      <obj_property name="ElementShortName">addra[6:0]</obj_property>
+      <obj_property name="ObjectShortName">addra[6:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/douta">
+      <obj_property name="ElementShortName">douta[24:0]</obj_property>
+      <obj_property name="ObjectShortName">douta[24:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/digit">
+      <obj_property name="ElementShortName">digit[3:0]</obj_property>
+      <obj_property name="ObjectShortName">digit[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/r_color">
+      <obj_property name="ElementShortName">r_color[3:0]</obj_property>
+      <obj_property name="ObjectShortName">r_color[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/g_color">
+      <obj_property name="ElementShortName">g_color[3:0]</obj_property>
+      <obj_property name="ObjectShortName">g_color[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/b_color">
+      <obj_property name="ElementShortName">b_color[3:0]</obj_property>
+      <obj_property name="ObjectShortName">b_color[3:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/clk_cnt">
+      <obj_property name="ElementShortName">clk_cnt[20:0]</obj_property>
+      <obj_property name="ObjectShortName">clk_cnt[20:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/active_row_cnt">
+      <obj_property name="ElementShortName">active_row_cnt[9:0]</obj_property>
+      <obj_property name="ObjectShortName">active_row_cnt[9:0]</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/uut/u_disp_driv/rgb_active">
+      <obj_property name="ElementShortName">rgb_active</obj_property>
+      <obj_property name="ObjectShortName">rgb_active</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/uut/u_text_driver/rgb_active">
+      <obj_property name="ElementShortName">rgb_active</obj_property>
+      <obj_property name="ObjectShortName">rgb_active</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/uut/u_text_driver/hsync">
+      <obj_property name="ElementShortName">hsync</obj_property>
+      <obj_property name="ObjectShortName">hsync</obj_property>
+   </wvobject>
+   <wvobject type="logic" fp_name="/top_sim/vsync">
+      <obj_property name="ElementShortName">vsync</obj_property>
+      <obj_property name="ObjectShortName">vsync</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/key">
+      <obj_property name="ElementShortName">key[7:0]</obj_property>
+      <obj_property name="ObjectShortName">key[7:0]</obj_property>
+   </wvobject>
+   <wvobject type="array" fp_name="/top_sim/uut/u_text_driver/testing">
+      <obj_property name="ElementShortName">testing[25:0]</obj_property>
+      <obj_property name="ObjectShortName">testing[25:0]</obj_property>
+   </wvobject>
+</wave_config>
