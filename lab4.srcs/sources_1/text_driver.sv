@@ -1,26 +1,30 @@
 
 
 module text_driver (
-    input clk
-,   input rgb_active
-,   output [6:0] addra 
-,   input [24:0] douta
-,   input  [3:0] digit
-,   input        hsync 
-,   input        vsync
+    input               clk
+,   input               slowclk
+,   input               rgb_active
+,   output logic [11:0]  addra 
+,   input        [24:0] douta
+,   input        [3:0]  digit
+,   input               hsync 
+,   input               vsync
 ,   output  logic [3:0] r_color
 ,   output  logic [3:0] g_color
 ,   output  logic [3:0] b_color
 ) ; 
 
-    logic [20:0] clk_cnt     ;
+    logic [20:0]      clk_cnt                 ;
+    logic             rgb_d                   ;  
+    logic [9:0]       active_row_cnt          ; 
+    logic [24:0]      pixel_data[15:0][7:0]   ; 
+    logic [7:0]       row,pix                 ; // Index through to write to pixel_data
 
-    assign addra = {3'd0,digit[3:0]} ; 
 
-    logic rgb_d ; 
-    logic [9:0] active_row_cnt ; 
 
-    always@( posedge clk ) begin
+
+
+    always@( posedge clk ) begin        // Drive active_row_cnt (row counter) on positive edge of hsync, reset once VSYNC goes low
         if (vsync) begin
          rgb_d <= hsync ; 
          if(hsync & !rgb_d) begin // posedge of hsync , increment row counter
@@ -31,40 +35,98 @@ module text_driver (
     end
 
 
+    // There is probably a much better way of doing this, but thankfully since the front porch exists, we have a few μs to capture 
+    // and buffer the font data stored at different address locations in BRAM
+    // I am not 100% confident this is the actual intended memory map but this is what I'm working with:
+    // Each address stores 1 pixel (4 bits each for R,G,B)
+    // Each digit is 128 pixels, I'm assuming 16 x 8. 
+    // so '0' digit pixel data inhabits locations 0-127
 
-    always @ (posedge clk) begin
+
+    logic  [6:0] delay_counter;  
+    initial delay_counter = '0 ; 
+    logic debug ; 
+    initial debug = 0 ; 
+    logic [3:0] digit_d ; 
+
+
+    typedef enum logic  [1:0] {NEW,STALE}   DIGIT_t ; 
+    DIGIT_t DIGIT_STATUS ;
+
+
+    always @(posedge clk) begin
+        digit_d <= digit ; 
+        case (DIGIT_STATUS) 
+
+          NEW :    if (row < 16) begin
+                    if (pix < 8) begin
+                        addra <= ((digit*128) + row*8 + pix);        // idk if this formula is right
+                        if (delay_counter < 6'd5) begin              // Delay reading the output for at least 2 clock cycles, there is a 2 cycle latency in the IP
+                            delay_counter <= delay_counter + 1'b1;
+                        end else begin
+                            pixel_data[row][pix] <= douta[0]     ;    // After BRAM output is stable pipe it to the corresponding buffer
+                            delay_counter <= '0                  ;  
+                            pix           <= pix + 1'b1          ;    
+                            debug         <= ~debug              ;   
+                        end
+                    end else begin
+                        pix <= '0         ;
+                        row <= row + 1'b1 ;
+                    end
+                end else begin
+                    row <= '0;
+                    pix <= '0;
+                    DIGIT_STATUS <= STALE ; 
+                end
+
+        STALE : 
+                    if (digit_d != digit)
+                    DIGIT_STATUS <= NEW  ; 
+
+        default : 
+                    DIGIT_STATUS <= NEW ; 
+        endcase
+    end
+
+    
+    logic [13:0] testing ; 
+
+    always @ (posedge slowclk) begin
 
         if(rgb_active) begin
          clk_cnt <= clk_cnt + 1'b1 ;
-
-                if((active_row_cnt >= 21'd36) && (active_row_cnt <= 21'd40)) begin //front porch
-                    if ((clk_cnt >= 21'd49) && (clk_cnt <= 21'd55)) begin
-                    if (douta[24 - ((active_row_cnt - 21'd36) * 5 + (clk_cnt - 21'd49))]==1'b1) begin
+                if((active_row_cnt >= 21'd36) && (active_row_cnt <= 21'd50)) begin //front (above) porch
+                    if ((clk_cnt >= 21'd40) && (clk_cnt <= 21'd47)) begin          // left porch + some more to get it off the left side of the screen a lil
+                    if (pixel_data[active_row_cnt-35][clk_cnt-40] != '0 ) begin    // 
                                 r_color <= 4'b1111 ; 
                                 g_color <= 4'b1111 ;
                                 b_color <= 4'b1111 ; 
                             end
+                            else begin
+                                r_color <= 4'b0000 ;
+                                g_color <= 4'b1111 ; // active row between 36 and 50
+                                b_color <= 4'b0000 ; 
+                            end
                     end
                     else begin
-                            r_color <= 4'b0000 ;
-                            g_color <= 4'b1111 ;
-                            b_color <= 4'b0000 ; 
+                                r_color <= 4'b0000 ;
+                                g_color <= 4'b1111 ; // active row between 36 and 50
+                                b_color <= 4'b0000 ; 
                     end
                 end
                 else begin
-                            r_color <= 4'b1111 ;
-                            g_color <= 4'b0000 ;
-                            b_color <= 4'b0000 ; 
+                                r_color <= 4'b1111 ;
+                                g_color <= 4'b0000 ;
+                                b_color <= 4'b0000 ; 
+
                 end
         end else
-        clk_cnt <= '0 ; 
+        clk_cnt <= '0       ; 
     end
 
-initial clk_cnt = '0 ; 
+initial clk_cnt = '0        ; 
 initial active_row_cnt = '0 ; 
-
-
-logic [25:0] testing ; 
-assign testing = 26'd24 - ((active_row_cnt - 21'd132) * 5 + (clk_cnt - 21'd145)) ;
+initial row = '0            ; 
+initial pix = '0            ; 
 
 endmodule

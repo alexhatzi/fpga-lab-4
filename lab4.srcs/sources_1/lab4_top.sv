@@ -12,19 +12,21 @@ module lab4_top
         , output logic [3:0] blue
         , output logic hsync
         , output logic vsync
+        , output         logic [3:0] digit      
+
 ) ; 
 
 
    
 
 
-        logic rgb_active ; 
-        logic dvld ; 
-        logic [7:0] key ;
+        logic rgb_active         ; 
+        logic dvld               ; 
+        logic [7:0] key          ;
         logic [1:0] error_detect ; 
         logic [2:0] state_detect ; 
-        logic [3:0] bit_loc     ;
-        logic [3:0] digit       ;
+        logic [3:0] bit_loc      ;
+        logic       slowclk      ; 
 
         initial bit_loc = '0 ; 
 
@@ -32,10 +34,10 @@ module lab4_top
         logic [3:0] g_color ; 
         logic [3:0] b_color ; 
 
-        logic [6:0] addra ; 
+        logic [11:0] addra ; 
         logic [24:0] douta ; 
 
-        always @ (posedge KBD_CLK) begin
+        always @ (posedge u_text_driver.debug) begin
         debugBUT_LED <=  ~debugBUT_LED ;
         end 
 
@@ -87,6 +89,7 @@ module lab4_top
 
         text_driver u_text_driver
                 (       .clk            (clk)
+                ,       .slowclk        (slowlck)
                 ,       .rgb_active     (rgb_active)
                 ,       .addra          (addra)
                 ,       .douta          (douta)
@@ -106,6 +109,13 @@ module lab4_top
                 ,       .douta           (douta)
                 ,       .clka            (clk)
                 ) ; 
+
+
+        clk_divider #( .CLK_COUNT(4))
+        u_clk_divider
+                (       .clk            (clk)
+                ,       .sample_clk     (slowlck)
+                ) ;
 
 
         // ila_0 u_ila (
