@@ -14,25 +14,37 @@ module text_driver (
 ,   output  logic [3:0] b_color
 ) ; 
 
-    logic [20:0]      clk_cnt                 ;
-    logic             rgb_d                   ;  
-    logic [9:0]       active_row_cnt          ; 
+    logic [20:0]      clk_cnt                 ; // Index through the actual pixel data (pixels) when driving
+    logic             hsync_d                 ; // Used to drive active_row_cnt by detecting when   
+    logic [9:0 ]      active_row_cnt          ; // Index through the actual pixel data (rows) when driving
     logic [24:0]      pixel_data[15:0][7:0]   ; 
-    logic [7:0]       row,pix                 ; // Index through to write to pixel_data
+    logic [7:0 ]      row,pix                 ; // Index through to write to pixel_data
+    logic [6:0 ]      delay_counter           ;  
+    logic             debug                   ; 
+    logic [3:0]       digit_d                 ;
+
+    typedef enum logic  [1:0] {NEW,STALE}   DIGIT_t ; 
+    DIGIT_t DIGIT_STATUS ;
+
+    initial delay_counter  = '0  ; 
+    initial debug          = '0  ; 
+    initial clk_cnt        = '0  ; 
+    initial active_row_cnt = '0  ; 
+    initial row            = '0  ; 
+    initial pix            = '0  ; 
 
 
 
-
-
-    always@( posedge clk ) begin        // Drive active_row_cnt (row counter) on positive edge of hsync, reset once VSYNC goes low
-        if (vsync) begin
-         rgb_d <= hsync ; 
-         if(hsync & !rgb_d) begin // posedge of hsync , increment row counter
+    always@( posedge clk ) begin             // Drive active_row_cnt (row counter) on positive edge of hsync, reset once VSYNC goes low
+        if (vsync) begin    
+         hsync_d <= hsync ; 
+         if(hsync & !hsync_d) begin         // posedge of hsync , increment row counter
             active_row_cnt <= active_row_cnt + 1'b1 ; 
          end 
         end else
         active_row_cnt <= '0 ; 
     end
+
 
 
     // There is probably a much better way of doing this, but thankfully since the front porch exists, we have a few μs to capture 
@@ -42,91 +54,89 @@ module text_driver (
     // Each digit is 128 pixels, I'm assuming 16 x 8. 
     // so '0' digit pixel data inhabits locations 0-127
 
-
-    logic  [6:0] delay_counter;  
-    initial delay_counter = '0 ; 
-    logic debug ; 
-    initial debug = 0 ; 
-    logic [3:0] digit_d ; 
-
-
-    typedef enum logic  [1:0] {NEW,STALE}   DIGIT_t ; 
-    DIGIT_t DIGIT_STATUS ;
+    // Yeah this digit status state machine is completely unncessary, but occasionally theres flickering in the digits
+    // I think because the value in the buffer is changing at the same time it's being read from so this just reduces the rate 
+    // that occurs at because the buffer wont update unless the digit value changes
 
 
     always @(posedge clk) begin
-        digit_d <= digit ; 
-        case (DIGIT_STATUS) 
+        digit_d <= digit;
+        case (DIGIT_STATUS)
 
-          NEW :    if (row < 16) begin
+            NEW: 
+                if (row < 16) begin
                     if (pix < 8) begin
-                        addra <= ((digit*128) + row*8 + pix);        // idk if this formula is right
-                        if (delay_counter < 6'd5) begin              // Delay reading the output for at least 2 clock cycles, there is a 2 cycle latency in the IP
+                        addra <= ((digit * 128) + row * 8 + pix); // idk if this formula is right
+                        if (delay_counter < 6'd5) begin           // Delay reading the output for at least 2 clock cycles, there is a 2 cycle latency in the IP
                             delay_counter <= delay_counter + 1'b1;
                         end else begin
-                            pixel_data[row][pix] <= douta[0]     ;    // After BRAM output is stable pipe it to the corresponding buffer
-                            delay_counter <= '0                  ;  
-                            pix           <= pix + 1'b1          ;    
-                            debug         <= ~debug              ;   
+                            pixel_data[row][pix] <= douta[0];     // After BRAM output is stable pipe it to the corresponding buffer
+                            delay_counter <= '0;
+                            pix <= pix + 1'b1;
+                            debug <= ~debug;
                         end
                     end else begin
-                        pix <= '0         ;
-                        row <= row + 1'b1 ;
+                        pix <= '0;
+                        row <= row + 1'b1;
                     end
                 end else begin
                     row <= '0;
                     pix <= '0;
-                    DIGIT_STATUS <= STALE ; 
+                    DIGIT_STATUS <= STALE;
                 end
 
-        STALE : 
-                    if (digit_d != digit)
-                    DIGIT_STATUS <= NEW  ; 
+            STALE: 
+                if (digit_d != digit)
+                    DIGIT_STATUS <= NEW;
 
-        default : 
-                    DIGIT_STATUS <= NEW ; 
+            default: 
+                DIGIT_STATUS <= NEW;
+
         endcase
     end
 
     
-    logic [13:0] testing ; 
 
+
+    // Actually drive the color data the display driver uses, NOTE: this is driven off the 25 MHz
+    // otherwise just obviously won't line up to the intended image (skip pixels)
     always @ (posedge slowclk) begin
-
         if(rgb_active) begin
          clk_cnt <= clk_cnt + 1'b1 ;
-                if((active_row_cnt >= 21'd36) && (active_row_cnt <= 21'd50)) begin //front (above) porch
-                    if ((clk_cnt >= 21'd40) && (clk_cnt <= 21'd47)) begin          // left porch + some more to get it off the left side of the screen a lil
-                    if (pixel_data[active_row_cnt-35][clk_cnt-40] != '0 ) begin    // 
-                                r_color <= 4'b1111 ; 
-                                g_color <= 4'b1111 ;
-                                b_color <= 4'b1111 ; 
-                            end
-                            else begin
-                                r_color <= 4'b0000 ;
-                                g_color <= 4'b1111 ; // active row between 36 and 50
-                                b_color <= 4'b0000 ; 
-                            end
+                if (digit == 4'd10) begin       // If enter key is pressed, clear 
+                                    r_color <= 4'b0000 ; 
+                                    g_color <= 4'b0000 ;
+                                    b_color <= 4'b0000 ; 
+                end else begin
+                if((active_row_cnt >= 21'd36) && (active_row_cnt <= 21'd50)) begin    //front (above) porch
+                    if ((clk_cnt >= 21'd40) && (clk_cnt <= 21'd47)) begin             // left porch + some more to get it off the left side of the screen a lil
+                        if (pixel_data[active_row_cnt-35][clk_cnt-40] != '0 ) begin   
+                                    r_color <= 4'b1111   ;  
+                                    g_color <= 4'b1111   ;
+                                    b_color <= 4'b1111   ; 
+                        end
+                        else begin
+                                    r_color <= 4'b0000 ;        // All these repeating elses wouldn't be necessary
+                                    g_color <= 4'b0000 ;        // if it was all one really long if statement 
+                                    b_color <= 4'b0000 ; 
+                        end
                     end
                     else begin
-                                r_color <= 4'b0000 ;
-                                g_color <= 4'b1111 ; // active row between 36 and 50
-                                b_color <= 4'b0000 ; 
+                                    r_color <= 4'b0000 ;
+                                    g_color <= 4'b0000 ;
+                                    b_color <= 4'b0000 ; 
                     end
                 end
                 else begin
-                                r_color <= 4'b1111 ;
-                                g_color <= 4'b0000 ;
-                                b_color <= 4'b0000 ; 
+                                    r_color <= 4'b0000 ;
+                                    g_color <= 4'b0000 ;
+                                    b_color <= 4'b0000 ; 
 
                 end
+        end
         end else
-        clk_cnt <= '0       ; 
+        clk_cnt <= '0 ; 
     end
 
-initial clk_cnt = '0        ; 
-initial active_row_cnt = '0 ; 
-initial row = '0            ; 
-initial pix = '0            ; 
 
 endmodule

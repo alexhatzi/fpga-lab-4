@@ -1,22 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Company: UCF EEL5722C with Dr. Lin
-// Engineer: Alexander Hatzilias
-// 
-// Create Date: 09/01/2024 02:09:29 PM
-// Design Name: Basys 3 Keyboard Input Driver 
-// Module Name: ps2input
-// Project Name: 
-// Target Devices: Digilent Basys 3 (Artix 7) 
-// Tool Versions: Vivado 2024
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
 
 
 module ps2input( 
@@ -38,6 +19,7 @@ module ps2input(
 
 
 initial begin
+bit_loc   = '0    ; 
 KBD_STATE = IDLE  ; 
 end
 

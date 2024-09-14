@@ -1,23 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 08/28/2024 11:01:07 PM
-// Design Name: 
-// Module Name: display_driver
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module display_driver 
    # ( parameter PIXELS_PER_ROW    = 640
@@ -48,18 +28,23 @@ module display_driver
 
 
 
-    typedef enum logic [2:0] {HIDLE,HWAIT,HSYNC}    HSYNC_t ; 
-    HSYNC_t HSYNC_STATE ; 
-
-
+    typedef enum logic  [2:0] {HIDLE,HWAIT,HSYNC}   HSYNC_t ; 
     typedef enum logic  [2:0] {VIDLE,VWAIT,VSYNC}   VSYNC_t ; 
-    VSYNC_t VSYNC_STATE ;
-
 
     logic [20:0] v_counter ; 
     logic [20:0] h_counter ;  // big enough reg to hold the largest number
+    logic [20:0] c_cnt     ; 
+    logic [20:0] d_cnt     ;
+    logic [20:0] e_cnt     ; 
+    HSYNC_t      HSYNC_STATE ; 
+    VSYNC_t      VSYNC_STATE ;
 
     initial v_counter = 0 ; 
+    initial c_cnt   = '0  ;
+    initial d_cnt   = '0  ; 
+    initial e_cnt   = '0  ; 
+
+
 
     // HSYNC state machine 
     always@(posedge clk) begin
@@ -98,8 +83,6 @@ module display_driver
 
 
 
-
-
     // VSYNC state machine 
     always@(posedge clk) begin
         case (VSYNC_STATE) 
@@ -129,19 +112,6 @@ module display_driver
                      VSYNC_STATE <= VIDLE ; 
         endcase
     end
-
-
-
-
-
-    logic [20:0] c_cnt     ; 
-    logic [20:0] d_cnt     ;
-    logic [20:0] e_cnt     ; 
-
-
-    initial c_cnt   = '0  ;
-    initial d_cnt   = '0  ; 
-    initial e_cnt   = '0  ; 
 
 
     // RGB Driver
@@ -177,9 +147,6 @@ module display_driver
         end
     end
   end
-
-
-
 
 
 endmodule

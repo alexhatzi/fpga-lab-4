@@ -2,23 +2,18 @@
 
 
 module lab4_top 
-        ( input clk
-        , input KBD_CLK
-        , input KBD_DATA
-        , output logic debugBUT_LED
-        , output logic debugDISP_LED
+        ( input              clk
+        , input              KBD_CLK
+        , input              KBD_DATA
+        , output logic       debugBUT_LED
+        , output logic       debugDISP_LED
         , output logic [3:0] red
         , output logic [3:0] green
         , output logic [3:0] blue
-        , output logic hsync
-        , output logic vsync
-        , output         logic [3:0] digit      
-
-) ; 
-
-
-   
-
+        , output logic       hsync
+        , output logic       vsync
+        , output logic [3:0] digit      
+        ) ; 
 
         logic rgb_active         ; 
         logic dvld               ; 
@@ -28,14 +23,12 @@ module lab4_top
         logic [3:0] bit_loc      ;
         logic       slowclk      ; 
 
-        initial bit_loc = '0 ; 
+        logic [3:0] r_color      ; 
+        logic [3:0] g_color      ; 
+        logic [3:0] b_color      ; 
 
-        logic [3:0] r_color ; 
-        logic [3:0] g_color ; 
-        logic [3:0] b_color ; 
-
-        logic [11:0] addra ; 
-        logic [24:0] douta ; 
+        logic [11:0] addra       ; 
+        logic [24:0] douta       ; 
 
         always @ (posedge u_text_driver.debug) begin
         debugBUT_LED <=  ~debugBUT_LED ;
@@ -111,8 +104,7 @@ module lab4_top
                 ) ; 
 
 
-        clk_divider #( .CLK_COUNT(4))
-        u_clk_divider
+        clk_divider #( .CLK_COUNT(4)) u_clk_divider // 25 Mhz for VGA standard
                 (       .clk            (clk)
                 ,       .sample_clk     (slowlck)
                 ) ;

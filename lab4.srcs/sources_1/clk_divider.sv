@@ -1,7 +1,3 @@
-`timescale 1ns / 1ps
-
-
-
 
 module clk_divider  #(CLK_COUNT = 12500000)
 ( 

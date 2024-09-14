@@ -1,23 +1,3 @@
-//////////////////////////////////////////////////////////////////////////////////
-// Company: UCF EEL5722C with Dr. Lin
-// Engineer: Alexander Hatzilias
-// 
-// Create Date: 09/01/2024 02:09:29 PM
-// Design Name: Basys 3 Keyboard Input Driver 
-// Module Name: ps2decoder
-// Project Name: 
-// Target Devices: Digilent Basys 3 (Artix 7) 
-// Tool Versions: Vivado 2024
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
 
 module ps2decoder (
     input  clk
@@ -40,8 +20,9 @@ module ps2decoder (
               8'h36   : digit = 4'd6   ;
               8'h3D   : digit = 4'd7   ; 
               8'h3E   : digit = 4'd8   ;
-              8'h46   : digit = 4'd9   ;     
-            default   : digit = 4'd10  ;     // Used to trigger decoder condition to indicate error
+              8'h46   : digit = 4'd9   ;  
+              8'h5A   : digit = 4'd10  ;     // Enter key
+            default   : digit = 4'd15  ;     // Used to trigger decoder condition to indicate error
             endcase
         end
     end
