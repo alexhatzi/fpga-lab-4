@@ -11,3 +11,15 @@ lab4.ip_user_files/
 .sv_cache
 *.xpr
 lab4.srcs/utils_1/
+blk_mem_gen_0.mif
+.Xil/Vivado-21134-Samsung-SmartFridge/elab.rtd
+.Xil/Vivado-21134-Samsung-SmartFridge/realtime/blk_mem_gen_0_stub.v
+.Xil/Vivado-21134-Samsung-SmartFridge/realtime/dupFiles.rpt
+.Xil/Vivado-21134-Samsung-SmartFridge/realtime/lab4_top.tcl
+.Xil/Vivado-3121187-Samsung-SmartFridge/elab.rtd
+.Xil/Vivado-3121187-Samsung-SmartFridge/realtime/blk_mem_gen_0_stub.v
+.Xil/Vivado-3121187-Samsung-SmartFridge/realtime/dupFiles.rpt
+.Xil/Vivado-3121187-Samsung-SmartFridge/realtime/lab4_top.tcl
+lab4.srcs/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0.xci
+lab4.srcs/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0.xci
+lab4.srcs/sources_1/ip/blk_mem_gen_0/blk_mem_gen_0.xci

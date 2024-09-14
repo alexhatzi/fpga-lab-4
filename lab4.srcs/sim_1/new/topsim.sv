@@ -25,7 +25,7 @@ module top_sim;
     );
 
 
-    always #1 clk = ~clk; 
+    always #5 clk = ~clk; 
 
 initial begin
     #20us

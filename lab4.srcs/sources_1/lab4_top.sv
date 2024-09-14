@@ -1,3 +1,4 @@
+`timescale 1ns / 1ps
 
 
 
@@ -44,8 +45,16 @@ module lab4_top
                 debugDISP_LED = 0 ;
         end
 
-        display_driver u_disp_driv 
+
+
+        clk_divider #( .CLK_COUNT(2)) u_clk_divider // 25 Mhz for VGA standard
                 (       .clk            (clk)
+                ,       .sample_clk     (slowclk)
+                ) ;
+
+
+        display_driver u_disp_driv 
+                (       .slowclk        (slowclk)
                 ,       .r_color        (r_color)
                 ,       .g_color        (g_color)
                 ,       .b_color        (b_color)
@@ -82,7 +91,7 @@ module lab4_top
 
         text_driver u_text_driver
                 (       .clk            (clk)
-                ,       .slowclk        (slowlck)
+                ,       .slowclk        (slowclk)
                 ,       .rgb_active     (rgb_active)
                 ,       .addra          (addra)
                 ,       .douta          (douta)
@@ -102,13 +111,6 @@ module lab4_top
                 ,       .douta           (douta)
                 ,       .clka            (clk)
                 ) ; 
-
-
-        clk_divider #( .CLK_COUNT(4)) u_clk_divider // 25 Mhz for VGA standard
-                (       .clk            (clk)
-                ,       .sample_clk     (slowlck)
-                ) ;
-
 
         // ila_0 u_ila (
         //         .clk (clk)

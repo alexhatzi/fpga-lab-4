@@ -2,18 +2,18 @@
 module display_driver 
    # ( parameter PIXELS_PER_ROW    = 640
      , parameter PIXELS_PER_COLUMN = 480
-     , parameter A_CLKS            = 3177
-     , parameter B_CLKS            = 377
-     , parameter C_CLKS            = 189
-     , parameter D_CLKS            = 2517
-     , parameter E_CLKS            = 94
-     , parameter O_CLKS            = 1660000
-     , parameter P_CLKS            = 6400
-     , parameter Q_CLKS            = 102000
-     , parameter R_CLKS            = 1525000
-     , parameter S_CLKS            = 35000
+     , parameter A_CLKS            = 800    // HORZ SYNC    PULSE
+     , parameter B_CLKS            = 96     // HORZ PULSE   WIDTH
+     , parameter C_CLKS            = 48     // HORZ BACK    PORCH
+     , parameter D_CLKS            = 640    // HORZ DISPLAY TIME 
+     , parameter E_CLKS            = 16     // HORZ BACK    PORCH 
+     , parameter O_CLKS            = 416800 // VERT SYNC    PULSE (P EDGE -> P EDGE)
+     , parameter P_CLKS            = 1600   // VERT PULSE   WIDTH
+     , parameter Q_CLKS            = 23200  // VERT BACK    PORCH (FIRST PORCH)
+     , parameter R_CLKS            = 384000 // VERT DISP    TIME
+     , parameter S_CLKS            = 8000   // VERT FRONT   PORCH
      )
-     ( input              clk
+     ( input              slowclk
      , input  logic [3:0] r_color
      , input  logic [3:0] g_color 
      , input  logic [3:0] b_color
@@ -39,83 +39,78 @@ module display_driver
     HSYNC_t      HSYNC_STATE ; 
     VSYNC_t      VSYNC_STATE ;
 
-    initial v_counter = 0 ; 
-    initial c_cnt   = '0  ;
-    initial d_cnt   = '0  ; 
-    initial e_cnt   = '0  ; 
+    initial v_counter = '0  ;
+    initial h_counter = '0  ; 
+    initial c_cnt     = '0  ;
+    initial d_cnt     = '0  ; 
+    initial e_cnt     = '0  ; 
 
 
 
     // HSYNC state machine 
-    always@(posedge clk) begin
-      if(V_SYNC) begin
-      case (HSYNC_STATE)
-            HIDLE:  begin
-                       h_counter   <= '0    ; 
-                       HSYNC_STATE <= HWAIT ; 
-                    end
-            HWAIT:  begin
-                     if (h_counter == (B_CLKS-1)) begin
-                      h_counter   <= '0    ; 
-                      HSYNC_STATE <= HSYNC ; 
-                     end
-                     else h_counter <= h_counter + 1'b1 ; 
-                    end
-            HSYNC:  begin 
-                      if (h_counter == (C_CLKS+D_CLKS+E_CLKS)) begin
-                       h_counter   <= '0 ; 
-                       H_SYNC      <= '0 ; 
-                       HSYNC_STATE <= HWAIT ; 
-                      end
-                      else begin 
-                      h_counter <= h_counter + 1'b1 ; 
-                      H_SYNC    <= 1'b1             ; 
-                      end
-                    end
-          default: HSYNC_STATE <= HIDLE ; 
-     endcase
-     end else begin
-      H_SYNC      <= '0    ; 
-      h_counter   <= '0    ; 
-      HSYNC_STATE <= HWAIT ; 
-     end
+    always @(posedge slowclk) begin
+        case (HSYNC_STATE)
+            HIDLE : begin
+                    HSYNC_STATE <= HWAIT ; 
+                    h_counter   <= 0     ; 
+            end
+            HWAIT : begin
+                if (h_counter == B_CLKS - 1) begin  
+                    HSYNC_STATE <= HSYNC ; 
+                    H_SYNC      <= 1'b1  ;  
+                    h_counter   <= '0    ;
+                end else
+                    h_counter <= h_counter + 1 ;
+            end
+            HSYNC : begin
+                if (h_counter == C_CLKS + D_CLKS + E_CLKS - 1) begin  // End of visible region and porches
+                    HSYNC_STATE <= HWAIT;
+                    H_SYNC <= 1'b0 ;  
+                    h_counter <= 0 ;
+                end else
+                    h_counter <= h_counter + 1;
+            end
+          default : begin 
+                    HSYNC_STATE <= HIDLE ;
+                    h_counter   <= '0    ; 
+          end 
+        endcase
     end
 
 
 
+
     // VSYNC state machine 
-    always@(posedge clk) begin
-        case (VSYNC_STATE) 
-             VIDLE: begin
-                    v_counter   <= '0    ; 
-                    VSYNC_STATE <= VWAIT ; 
-                    end
-             VWAIT: begin
-                     if (v_counter == (P_CLKS-1)) begin
-                     v_counter   <= '0    ; 
-                     VSYNC_STATE <= VSYNC ; 
-                     end
-                     else v_counter <= v_counter + 1'b1 ; 
-                    end
-             VSYNC: begin 
-                     if (v_counter == (Q_CLKS+R_CLKS+S_CLKS)) begin
-                     v_counter   <= '0    ; 
-                     V_SYNC      <= '0    ;
-                     VSYNC_STATE <= VWAIT ; 
-                     end
-                     else begin 
-                     v_counter <= v_counter + 1'b1 ; 
-                     V_SYNC    <= 1'b1             ; 
-                     end
-                    end
+    always @(posedge slowclk) begin
+        case (VSYNC_STATE)
+            VIDLE: begin
+                    VSYNC_STATE <= VWAIT;
+                    v_counter <= 0; 
+            end
+            VWAIT: begin
+                if (v_counter == P_CLKS - 1) begin  
+                    V_SYNC <= 1'b1;  // De-assert VSYNC
+                    VSYNC_STATE <= VSYNC;
+                    v_counter <= 0;
+                end else
+                    v_counter <= v_counter + 1;
+            end
+            VSYNC: begin
+                if (v_counter == Q_CLKS + R_CLKS + S_CLKS - 1) begin  // End of the active time + porches
+                    VSYNC_STATE <= VWAIT;
+                    V_SYNC <= 1'b0;  // Assert VSYNC (sync pulse)
+                    v_counter <= 0;
+                end else
+                    v_counter <= v_counter + 1;
+            end
           default : 
                      VSYNC_STATE <= VIDLE ; 
         endcase
     end
 
 
-    // RGB Driver
-    always@(posedge clk) begin
+  // RGB Driver
+    always@(posedge slowclk) begin
       if(V_SYNC) begin
         if(H_SYNC) begin  // When HSYNC high
           if (c_cnt == (C_CLKS-1)) begin // Wait for hold time
@@ -147,6 +142,7 @@ module display_driver
         end
     end
   end
+
 
 
 endmodule

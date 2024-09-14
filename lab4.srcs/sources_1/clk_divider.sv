@@ -13,13 +13,14 @@ initial sample_clk = 0 ;
 
 
 always@(posedge clk) begin
-    if (clkcount == CLK_COUNT ) begin
-      sample_clk = ~sample_clk ; 
-        clkcount = '0 ; 
+    if (clkcount == CLK_COUNT - 1 ) begin
+      sample_clk <= ~sample_clk ; 
+        clkcount <= '0 ; 
      end else begin
         clkcount = clkcount + 1'b1 ; 
      end
 end
+
 
 
 endmodule 
