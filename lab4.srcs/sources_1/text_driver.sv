@@ -128,10 +128,11 @@ module text_driver (
     always @ (posedge slowclk) begin
         if(rgb_active) begin
          clk_cnt <= clk_cnt + 1'b1 ;
-                if(active_row_cnt <= 21'd15) begin                                     
-                    if ((clk_cnt >= 21'd10) && (clk_cnt <= 21'd17)) begin              // added a 10 pixel pixel cushion off the left 
-                        if (pixel_data[active_row_cnt][clk_cnt-10] != '0 ) begin    
-                                    r_color <= 4'b0000   ;  
+                begin
+                if((active_row_cnt >= 21'd36) && (active_row_cnt <= 21'd50)) begin    //front (above) porch
+                    if ((clk_cnt >= 21'd40) && (clk_cnt <= 21'd47)) begin             // left porch + some more to get it off the left side of the screen a lil
+                        if (pixel_data[active_row_cnt-35][clk_cnt-40] != '0 ) begin   
+                                    r_color <= 4'b1111   ;  
                                     g_color <= 4'b1111   ;
                                     b_color <= 4'b1111   ; 
                         end
