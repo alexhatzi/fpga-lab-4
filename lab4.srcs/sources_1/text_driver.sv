@@ -154,7 +154,8 @@ module text_driver (
                                     b_color <= 4'b0001 ; 
 
                 end
-        end else
+        end 
+        end
         clk_cnt <= '0 ; 
     end
 
