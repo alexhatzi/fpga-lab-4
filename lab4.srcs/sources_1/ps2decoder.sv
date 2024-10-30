@@ -21,8 +21,8 @@ module ps2decoder (
               8'h3D   : digit = 4'd7   ; 
               8'h3E   : digit = 4'd8   ;
               8'h46   : digit = 4'd9   ;  
-              8'h5A   : digit = 4'd11  ;     // Enter key
-            default   : digit = 4'd10  ;     // Used to trigger decoder condition to indicate error
+              8'h5A   : digit = 4'd10  ;     // Enter key
+            default   : digit = 4'd15  ;     // Used to trigger decoder condition to indicate error
             endcase
         end
     end

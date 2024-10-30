@@ -128,7 +128,11 @@ module text_driver (
     always @ (posedge slowclk) begin
         if(rgb_active) begin
          clk_cnt <= clk_cnt + 1'b1 ;
-                begin
+                if (digit == 4'd10) begin       // If enter key is pressed, clear 
+                                    r_color <= 4'b0000 ; 
+                                    g_color <= 4'b0000 ;
+                                    b_color <= 4'b0000 ; 
+                end else begin
                 if((active_row_cnt >= 21'd36) && (active_row_cnt <= 21'd50)) begin    //front (above) porch
                     if ((clk_cnt >= 21'd40) && (clk_cnt <= 21'd47)) begin             // left porch + some more to get it off the left side of the screen a lil
                         if (pixel_data[active_row_cnt-35][clk_cnt-40] != '0 ) begin   
